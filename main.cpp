@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <fstream>
 #include <string>
 
@@ -144,3 +145,33 @@ int main()
     cout << "Quantidade de elementos: " << quantElementos << endl;
     return 0;
 }
+
+//Tentar achar uma forma de achar qual elemento é o inicial
+//Criar um vetor de Strings com o tamanho de linhas que vamos precisar para poder escrever os epslon e o auxiliar dentro dele
+//E sobrescrever o automato.jflap usando o vetor de strings no final 
+
+//Criar menu
+//Opcao 1 - implementar função estrela no automato
+//Opcao 2 - implementar função complemento  automato
+//Opcao 3 - abrir o arquivo automato.jflap para apresentar ao usuário
+
+// Comportamento do lambda é um read vazio: 
+//          <from>posicaoInicial</from>&#13;
+//			<to>posicaoFinal</to>&#13;
+//			<read/>&#13;
+
+//Estrela
+//- Criar um struct auxiliar com as mesmas definições do typedef Elementos e por ele como posicao incial e tirar posicao final do antigo
+//- O Auxiliar vai apontar para o antigo 
+//- Descobrir a posição dos finais
+//Criar um auxiliar que vai apontar para o incial usando epslon
+//Fazer os finais apontarem para o inicial anterior usando  epslon 
+//Guardar o valor da posição do inicial, e quando criar o auxiliar alterar apenas o valor de x, colocando a formula x = posicaoInicial-150
+
+
+
+//Complemento
+//Fazer os finais deixarem de serem inciais
+//Fazer os não finais virarem finais
+
+//Criar 2 arquivos, antigo e alterado 

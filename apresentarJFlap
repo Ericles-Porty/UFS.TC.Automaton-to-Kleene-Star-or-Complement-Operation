@@ -1,0 +1,1 @@
+java -jar jFLAP.jar automato.jff
