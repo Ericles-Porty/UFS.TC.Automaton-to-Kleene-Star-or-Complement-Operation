@@ -5,11 +5,14 @@
 
 using namespace std;
 
+//const string *clone;
+const string arquivoComplemento = "automatoComplementado.jff";
 const string arquivo = "automato.jff";
 const string isFinal = "\t\t\t<final/>";
 const string isInicial = "\t\t\t<initial/>";
 const string compStringId = "\t\t<state id=\"";
 const string fecha = "\t\t</state>&#";
+int quantLinhasClone;
 
 ifstream entrada;
 ofstream saida;
@@ -17,13 +20,13 @@ ofstream saida;
 typedef struct frases
 {
     string frase;
-} FraseLinhas[10];
+} FraseLinhas[20];
 typedef struct estados
 {
     int idEstado;
     string nomeEstado;
-    bool acceptFinal=0;
-} Estados[10];
+    bool acceptFinal = false;
+} Estados[20];
 
 int contaLinhas()
 {
@@ -126,7 +129,7 @@ int achaInicial()
     exit(1);
 }
 
-int guardaFinais(int *finais)
+int guardaFinais(int *finais, Estados *elem)
 {
 
     string linha;
@@ -150,6 +153,7 @@ int guardaFinais(int *finais)
                     if (subStringTempId == isFinal)
                     {
                         finais[contador] = posicaoElemento;
+                        elem[posicaoElemento]->acceptFinal = true;
                         contador++;
                     }
                     subStringTempId = linha.substr(0, 13);
@@ -193,41 +197,175 @@ void mineraElementos(Estados *elem)
     exit(1);
 }
 
-int main()
+string clonandoArquivo(string *clone)
 {
-    int quantElementos = contaElementos();
-    Estados elem[10]; //tamanho do automato pra ser alocado dinamicamente no futuro
-    mineraElementos(elem);
-    int posicaoDoInicial = achaInicial();
-    int quantFinais = contaFinais();
-    int *elementosFinais = (int *)malloc(quantFinais * sizeof(int));
-    *elementosFinais = guardaFinais(elementosFinais);
-    int quantLinhas = contaLinhas();
-    
-    //Printa os elementos finais para testes
-    /*for (int i = 0; i < quantFinais; i++)
+    string subStringTempId;
+    string linha;
+    int i = 0;
+    int indice = 0;
+    entrada.open(arquivo);
+    if (entrada.is_open())
     {
-        cout << " Final: " << elementosFinais[i] ;
-    }*/
-
-    //Printa as informações da struct para testes
-    /*for (int i = 0; i < quantElementos; i++)
-    {
-        string aceita = (elem[i]->acceptFinal == 1) ? "Sim" : "Nao";
-        cout << "Id do elemento: " << elem[i]->idEstado << endl
-             << "Nome do elemento: " << elem[i]->nomeEstado << endl
-             << "E final: " << aceita << endl;
-    }*/
-
-    if (posicaoDoInicial != -1)
-        cout << "ID do elemento que esta o inicial: " << posicaoDoInicial << endl;
-    cout << "Quantidade de finais: " << quantFinais << endl;
-    cout << "Quantidade de linhas: " << quantLinhas << endl;
-    cout << "Quantidade de elementos: " << quantElementos << endl;
-    return 0;
+        while (getline(entrada, linha))
+        {
+            subStringTempId = linha.substr(0, 13);
+            if (subStringTempId == compStringId)
+            {
+                indice++;
+            }
+            clone[i] = linha;
+            i++;
+        }
+        entrada.close();
+        return *clone;
+    }
+    cout << "Ocorreu um erro ao abrir o arquivo, perdao pela inconveniencia." << endl;
+    exit(1);
 }
 
-//AMANHÃ CRIAR UM BOOLEAN DENTRO DA STRUCT FALANDO SE É FINAL OU NÃO, SERÁ NECESSÁRIO
+void complemento(string *clone)
+{
+    int linha = 0;
+    int indice = 0;
+    int trava = 0;
+    string aux;
+    string subStringTempId;
+    while (linha < quantLinhasClone)
+    {
+        subStringTempId = clone[linha].substr(0, 13);
+        if (subStringTempId == compStringId)
+        {
+            if (clone[linha + 3].substr(0, 13) == isInicial && trava == 0)
+            {
+                if (clone[linha + 4].substr(0, 12) == fecha)
+                {
+                    int x = quantLinhasClone ;
+                    while (x > linha + 4)
+                    {
+                        clone[x] = clone[x - 1];
+                        x--;
+                    }
+                    clone[linha + 4] = "\t\t\t<final/>&#13;";
+                    quantLinhasClone++;
+                }
+                else if (clone[linha + 4].substr(0, 11) == isFinal)
+                {
+                    int x = linha;
+                    while (quantLinhasClone > x )
+                    {
+                        clone[x + 4] = clone[x + 5];
+                        x++;
+                    }
+                    quantLinhasClone--;
+                }
+                trava++;
+            }
+            else
+            {
+                subStringTempId = clone[linha + 3].substr(0, 11);
+                if (subStringTempId != isFinal)
+                {
+                    int x = quantLinhasClone ;
+                    while (x > linha + 3)
+                    {
+                        clone[x] = clone[x - 1];
+                        x--;
+                    }
+                    clone[linha + 3] = "\t\t\t<final/>&#13;";
+                    quantLinhasClone++;
+                }
+                else
+                {
+                    int x = linha;
+                    while (quantLinhasClone > x )
+                    {
+                        clone[x + 3] = clone[x + 4];
+                        x++;
+                    }
+                    quantLinhasClone--;
+                }
+            }
+
+            indice++;
+        }
+        linha++;
+    }
+    return;
+}
+
+int menu()
+{
+    int op;
+    cout << "Selecione uma operacao: " << endl
+         << "1 - Complemento" << endl
+         << "2 - Estrela " << endl
+         << "3 - Informacoes do automato" << endl
+         << "0 - Encerrar o programa" << endl;
+    cin >> op;
+    return op;
+}
+
+int main()
+{
+    int quantLinhas = contaLinhas();
+    int quantElementos = contaElementos();
+    int quantFinais = contaFinais();
+    int posicaoDoInicial = achaInicial();
+    int *elementosFinais = (int *)malloc(quantFinais * sizeof(int));
+    Estados elem[10]; //tamanho do automato pra ser alocado dinamicamente no futuro
+    mineraElementos(elem);
+    *elementosFinais = guardaFinais(elementosFinais, elem);
+    string clone[200];
+    *clone = clonandoArquivo(clone);
+    quantLinhasClone = contaLinhas();
+    complemento(clone);
+    int op;
+    do
+    {
+        op = menu();
+        switch (op)
+        {
+        case 0:
+            break;
+        case 1:
+            saida.open(arquivoComplemento);
+            if(saida.is_open()){
+                for (int i = 0; i < quantLinhasClone; i++){
+                    saida << clone[i]<<endl;
+                }
+            }
+            saida.close();
+            break;
+        case 2:
+            cout << "Opcao ainda sera implementada" << endl;
+            break;
+        case 3:
+        {
+            for (int i = 0; i < quantElementos; i++)
+            {
+                string aceita = (elem[i]->acceptFinal == true) ? "Sim" : "Nao";
+                cout << " ----------------" << i << "----------------" << endl
+                     << "Id do elemento: " << elem[i]->idEstado << endl
+                     << "Nome do elemento: " << elem[i]->nomeEstado << endl
+                     << "E final: " << aceita << endl;
+            }
+            if (posicaoDoInicial != -1)
+                cout << "ID do elemento que esta o inicial: " << posicaoDoInicial << endl;
+            cout << "Quantidade de finais: " << quantFinais << endl;
+            cout << "Quantidade de linhas: " << quantLinhas << endl;
+            cout << "Quantidade de elementos: " << quantElementos << endl;
+            break;
+        }
+
+        default:
+            cout << "Voce nao digitou uma opcao valida" << endl;
+            break;
+        }
+
+    } while (op != 0);
+
+    return 0;
+}
 
 //-Criar um vetor de Strings com o tamanho de linhas que vamos precisar para poder escrever os epslon e o auxiliar dentro dele
 //E sobrescrever o automato.jflap usando o vetor de strings no final
