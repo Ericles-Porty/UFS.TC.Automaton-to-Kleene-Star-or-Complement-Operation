@@ -5,7 +5,6 @@
 
 using namespace std;
 
-//const string *clone;
 const string arquivoComplemento = "automatoComplementado.jff";
 const string arquivo = "automato.jff";
 const string isFinal = "\t\t\t<final/>";
@@ -17,16 +16,23 @@ int quantLinhasClone;
 ifstream entrada;
 ofstream saida;
 
-typedef struct frases
-{
-    string frase;
-} FraseLinhas[20];
 typedef struct estados
 {
     int idEstado;
     string nomeEstado;
     bool acceptFinal = false;
 } Estados[20];
+
+int contaLinhas();
+int contaFinais();
+int contaElementos();
+int achaInicial();
+int guardaFinais();
+void mineraElementos();
+string clonandoArquivo();
+void complemento();
+void caseMenu();
+int printaMenu();
 
 int contaLinhas()
 {
@@ -202,17 +208,11 @@ string clonandoArquivo(string *clone)
     string subStringTempId;
     string linha;
     int i = 0;
-    int indice = 0;
     entrada.open(arquivo);
     if (entrada.is_open())
     {
         while (getline(entrada, linha))
-        {
-            subStringTempId = linha.substr(0, 13);
-            if (subStringTempId == compStringId)
-            {
-                indice++;
-            }
+        {            
             clone[i] = linha;
             i++;
         }
@@ -232,8 +232,7 @@ void complemento(string *clone)
     string subStringTempId;
     while (linha < quantLinhasClone)
     {
-        subStringTempId = clone[linha].substr(0, 13);
-        if (subStringTempId == compStringId)
+        if (clone[linha].substr(0, 13) == compStringId)
         {
             if (clone[linha + 3].substr(0, 13) == isInicial && trava == 0)
             {
@@ -262,8 +261,7 @@ void complemento(string *clone)
             }
             else
             {
-                subStringTempId = clone[linha + 3].substr(0, 11);
-                if (subStringTempId != isFinal)
+                if (clone[linha + 3].substr(0, 11) != isFinal)
                 {
                     int x = quantLinhasClone ;
                     while (x > linha + 3)
@@ -293,36 +291,11 @@ void complemento(string *clone)
     return;
 }
 
-int menu()
-{
-    int op;
-    cout << "Selecione uma operacao: " << endl
-         << "1 - Complemento" << endl
-         << "2 - Estrela " << endl
-         << "3 - Informacoes do automato" << endl
-         << "0 - Encerrar o programa" << endl;
-    cin >> op;
-    return op;
-}
-
-int main()
-{
-    int quantLinhas = contaLinhas();
-    int quantElementos = contaElementos();
-    int quantFinais = contaFinais();
-    int posicaoDoInicial = achaInicial();
-    int *elementosFinais = (int *)malloc(quantFinais * sizeof(int));
-    Estados elem[10]; //tamanho do automato pra ser alocado dinamicamente no futuro
-    mineraElementos(elem);
-    *elementosFinais = guardaFinais(elementosFinais, elem);
-    string clone[200];
-    *clone = clonandoArquivo(clone);
-    quantLinhasClone = contaLinhas();
-    complemento(clone);
+void caseMenu(string *clone, int quantLinhas, int quantElementos, int quantFinais, int posicaoDoInicial,Estados *elem){
     int op;
     do
     {
-        op = menu();
+        op = printaMenu();
         switch (op)
         {
         case 0:
@@ -347,8 +320,9 @@ int main()
                 cout << " ----------------" << i << "----------------" << endl
                      << "Id do elemento: " << elem[i]->idEstado << endl
                      << "Nome do elemento: " << elem[i]->nomeEstado << endl
-                     << "E final: " << aceita << endl;
+                     << "Final? " << aceita << endl;
             }
+            cout << "---------------------------------" << endl;
             if (posicaoDoInicial != -1)
                 cout << "ID do elemento que esta o inicial: " << posicaoDoInicial << endl;
             cout << "Quantidade de finais: " << quantFinais << endl;
@@ -363,16 +337,40 @@ int main()
         }
 
     } while (op != 0);
+}
+
+int printaMenu()
+{
+    int op;
+    cout << "Selecione uma operacao: " << endl
+         << "1 - Complemento" << endl
+         << "2 - Estrela " << endl
+         << "3 - Informacoes do automato" << endl
+         << "0 - Encerrar o programa" << endl;
+    cin >> op;
+    return op;
+}
+
+int main()
+{
+    int quantLinhas = contaLinhas();
+    int quantElementos = contaElementos();
+    int posicaoDoInicial = achaInicial();
+    int quantFinais = contaFinais();
+    int *elementosFinais = (int *)malloc(quantFinais * sizeof(int));
+    Estados elem[20]; //tamanho do automato pra ser alocado dinamicamente no futuro
+    mineraElementos(elem);
+    *elementosFinais = guardaFinais(elementosFinais, elem);
+    string clone[500];
+    *clone = clonandoArquivo(clone);
+    quantLinhasClone = contaLinhas();
+    complemento(clone);
+    caseMenu(clone,quantLinhas,quantElementos,quantFinais,posicaoDoInicial, elem);
 
     return 0;
 }
 
-//-Criar um vetor de Strings com o tamanho de linhas que vamos precisar para poder escrever os epslon e o auxiliar dentro dele
-//E sobrescrever o automato.jflap usando o vetor de strings no final
-
-//Criar menu
-//-Opcao 1 - implementar função estrela no automato
-//-Opcao 2 - implementar função complemento  automato
+//-Implementar função estrela no automato
 //-Opcao 3 - abrir o arquivo automato.jflap para apresentar ao usuário
 
 // Comportamento do lambda é um read vazio:
@@ -387,9 +385,3 @@ int main()
 //-Criar um auxiliar que vai apontar para o incial usando epslon
 //-Fazer os finais apontarem para o inicial anterior usando  epslon
 //-Guardar o valor da posição do inicial, e quando criar o auxiliar alterar apenas o valor de x, colocando a formula x = posicaoInicial-150
-
-//Complemento
-//-Fazer os finais deixarem de serem inciais
-//-Fazer os não finais virarem finais
-
-//-Criar 2 arquivos, antigo e alterado
