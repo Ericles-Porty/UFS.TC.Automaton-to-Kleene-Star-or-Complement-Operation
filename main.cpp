@@ -117,10 +117,9 @@ int achaInicial()
             {
                 while (getline(entrada, linha))
                 {
-                    subStringTempId = linha.substr(0, 13);
-                    if (subStringTempId == fecha)
+                    if (linha.substr(0, 12) == fecha)
                         break;
-                    if (subStringTempId == isInicial)
+                    if (linha.substr(0, 13) == isInicial)
                     {
                         entrada.close();
                         return posicaoElemento;
@@ -183,8 +182,7 @@ void mineraElementos(estados *elem)
     {
         while (getline(entrada, linha))
         {
-            subStringTempId = linha.substr(0, 13);
-            if (subStringTempId == compStringId)
+            if (linha.substr(0, 13) == compStringId)
             {
                 int posicao1 = linha.find("name=\"") + 6;
                 int posicao2 = linha.find("\">");
@@ -225,8 +223,6 @@ void complemento(string *clone)
 {
     int linha = 0;
     int trava = 0;
-    string aux;
-    string subStringTempId;
     while (linha < quantLinhasClone)
     {
         if (clone[linha].substr(0, 13) == compStringId)
@@ -292,7 +288,7 @@ void estrela(string *clone, int posicaoDoInicial, int *elementosFinais, int quan
     while (linha < quantLinhasClone)
     {
 
-        if (clone[linha].substr(0, 18) == "\t\t\t<initial/>&#13;") //apaga antigo inicial
+        if (clone[linha].substr(0, 18) == "\t\t\t<initial/>&#13;")
         {
             int x = linha;
             while (quantLinhasClone > x)
@@ -302,7 +298,7 @@ void estrela(string *clone, int posicaoDoInicial, int *elementosFinais, int quan
             }
             quantLinhasClone--;
         }
-        if (clone[linha].substr(0, 38) == "\t\t<!--The list of transitions.-->&#13;") //insere o novo elemento no final da lista de elementos
+        if (clone[linha].substr(0, 38) == "\t\t<!--The list of transitions.-->&#13;")
         {
             int x = quantLinhasClone;
             while (x > linha + 2)
@@ -313,7 +309,7 @@ void estrela(string *clone, int posicaoDoInicial, int *elementosFinais, int quan
             clone[linha] = "\t\t<state id=\"666\" name=\"AUX\">&#13;\n\t\t\t<x>-100.0</x>&#13;\n\t\t\t<y>100.0</y>&#13;\n\t\t\t<initial/>&#13;\n\t\t\t<final/>&#13;\n\t\t</state>&#13;\n\t\t<!--The list of transitions.-->&#13;";
             quantLinhasClone += 6;
         }
-        if (clone[linha].substr(0, 18) == "\t</automaton>&#13;") //faz o novo elemento apontar pro antigo inicial
+        if (clone[linha].substr(0, 18) == "\t</automaton>&#13;") 
         {
             int x = quantLinhasClone;
             quantLinhasClone++;
@@ -327,7 +323,7 @@ void estrela(string *clone, int posicaoDoInicial, int *elementosFinais, int quan
             clone[linha] += "</to>&#13;\n\t\t\t<read/>&#13;\n\t\t</transition>&#13;\n\t</automaton>&#13;";
             quantLinhasClone += 6;
         }
-        if (clone[linha + 1].substr(0, 19) == "\t\t<transition>&#13;") //faz os finais apontarem pro inicial
+        if (clone[linha + 1].substr(0, 19) == "\t\t<transition>&#13;")
         {
             for (int i = 0; i < quantFinais; i++)
             {
