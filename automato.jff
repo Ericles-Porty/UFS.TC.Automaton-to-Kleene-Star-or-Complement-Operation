@@ -11,9 +11,19 @@
 			<x>168.0</x>&#13;
 			<y>125.0</y>&#13;
 		</state>&#13;
-		<state id="666" name="q2">&#13;
+		<state id="2" name="q2">&#13;
 			<x>296.0</x>&#13;
 			<y>125.0</y>&#13;
+			<final/>&#13;
+		</state>&#13;
+		<state id="3" name="q3">&#13;
+			<x>448.0</x>&#13;
+			<y>121.0</y>&#13;
+			<final/>&#13;
+		</state>&#13;
+		<state id="4" name="q4">&#13;
+			<x>451.0</x>&#13;
+			<y>202.0</y>&#13;
 			<final/>&#13;
 		</state>&#13;
 		<!--The list of transitions.-->&#13;
@@ -36,6 +46,16 @@
 			<from>1</from>&#13;
 			<to>2</to>&#13;
 			<read>0</read>&#13;
+		</transition>&#13;
+		<transition>&#13;
+			<from>2</from>&#13;
+			<to>4</to>&#13;
+			<read>0</read>&#13;
+		</transition>&#13;
+		<transition>&#13;
+			<from>2</from>&#13;
+			<to>3</to>&#13;
+			<read>1</read>&#13;
 		</transition>&#13;
 	</automaton>&#13;
 </structure>
