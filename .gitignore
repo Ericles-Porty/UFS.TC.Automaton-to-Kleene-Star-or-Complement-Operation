@@ -1,9 +1,8 @@
 
+.vscode/c_cpp_properties.json
 .vscode/launch.json
-.vscode/settings.json
+.gitattributes
 .vscode/tasks.json
-ProjetoTCGrupo6.layout
 tempCodeRunnerFile.cpp
-tempCodeRunnerFile.cpp
-automatoComplementado.jff
-tempCodeRunnerFile.cpp
+ProjetoTCGrupo6.depend
+ProjetoTCGrupo6.cbp
