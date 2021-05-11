@@ -1,7 +1,0 @@
-# depslib dependency file v1.0
-1620089308 source:c:\users\ericles\desktop\tc\projetotcgrupo6\main.cpp
-	<conio.h>
-	<iostream>
-	<fstream>
-	<string>
-
