@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cstdlib>
 #include <fstream>
 #include <string>
 
@@ -25,6 +24,7 @@ typedef struct
 } estados;
 typedef estados *Estados;
 
+void error();
 int contaLinhas();
 int contaFinais();
 int contaElementos();
@@ -33,6 +33,7 @@ int guardaFinais();
 void mineraElementos();
 string clonandoArquivo();
 void complemento();
+void estrela();
 void caseMenu();
 int printaMenu();
 
