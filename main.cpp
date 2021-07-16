@@ -1,21 +1,28 @@
 #include <iostream>
-#include <cstdlib>
 #include <fstream>
 #include <string>
 
-using namespace std;
+using std::string;
+using std::ifstream;
+using std::ofstream;
+using std::cin;
+using std::cout;
+using std::endl;
+using std::to_string;
+
+ifstream entrada;
+ofstream saida;
 
 const string arquivo = "automato.jff";
 const string arquivoComplemento = "automatoComplementado.jff";
 const string arquivoEstrela = "automatoEstrelado.jff";
 const string isFinal = "\t\t\t<final/>";
 const string isInicial = "\t\t\t<initial/>";
-const string compStringId = "\t\t<state id=\"";
-const string fecha = "\t\t</state>&#";
+const string openState = "\t\t<state id=\"";
+const string closeState = "\t\t</state>&#";
 int quantLinhasClone;
 
-ifstream entrada;
-ofstream saida;
+
 
 typedef struct
 {
@@ -25,6 +32,7 @@ typedef struct
 } estados;
 typedef estados *Estados;
 
+void error();
 int contaLinhas();
 int contaFinais();
 int contaElementos();
@@ -33,12 +41,15 @@ int guardaFinais();
 void mineraElementos();
 string clonandoArquivo();
 void complemento();
+void estrela();
 void caseMenu();
 int printaMenu();
 
+
 void error()
 {
-    cout << "Ocorreu um erro ao abrir o arquivo, perdao pela inconveniencia." << endl;
+    cout << "Ocorreu um erro ao abrir ou fechar o arquivo, perdao pela inconveniencia." << endl;
+    exit(1);
 }
 
 int contaLinhas()
@@ -56,7 +67,6 @@ int contaLinhas()
         return quantLinhas;
     }
     error();
-    exit(1);
 }
 
 int contaFinais()
@@ -78,7 +88,6 @@ int contaFinais()
     }
     return 0;
     error();
-    exit(1);
 }
 
 int contaElementos()
@@ -90,7 +99,7 @@ int contaElementos()
     {
         while (getline(entrada, linha))
         {
-            if (linha.substr(0, 13) == compStringId)
+            if (linha.substr(0, 13) == openState)
             {
                 quantElementos++;
             }
@@ -99,33 +108,30 @@ int contaElementos()
         return quantElementos;
     }
     error();
-    exit(1);
 }
 
 int achaInicial()
 {
 
     string linha;
-    string subStringTempId;
     int posicaoElemento = 0;
     entrada.open(arquivo);
     if (entrada.is_open())
     {
         while (getline(entrada, linha))
         {
-            if (compStringId == linha.substr(0, 13))
+            if (openState == linha.substr(0, 13))
             {
                 while (getline(entrada, linha))
                 {
-                    if (linha.substr(0, 12) == fecha)
+                    if (linha.substr(0, 12) == closeState)
                         break;
                     if (linha.substr(0, 13) == isInicial)
                     {
                         entrada.close();
                         return posicaoElemento;
                     }
-                    if (subStringTempId == compStringId)
-                        posicaoElemento++;
+                    posicaoElemento++;
                 }
             }
         }
@@ -133,14 +139,13 @@ int achaInicial()
         return -1;
     }
     error();
-    exit(1);
+    
 }
 
 int guardaFinais(int *finais, estados *elem)
 {
 
     string linha;
-    string subStringTempId;
     int contador = 0;
     int posicaoElemento = 0;
     entrada.open(arquivo);
@@ -148,11 +153,11 @@ int guardaFinais(int *finais, estados *elem)
     {
         while (getline(entrada, linha))
         {
-            if (compStringId == linha.substr(0, 13))
+            if (openState == linha.substr(0, 13))
             {
                 while (getline(entrada, linha))
                 {
-                    if (linha.substr(0, 13) == fecha)
+                    if (linha.substr(0, 13) == closeState)
                         break;
                     if (linha.substr(0, 11) == isFinal)
                     {
@@ -160,7 +165,7 @@ int guardaFinais(int *finais, estados *elem)
                         elem[posicaoElemento].acceptFinal = true;
                         contador++;
                     }
-                    if (linha.substr(0, 13) == compStringId)
+                    if (linha.substr(0, 13) == openState)
                         posicaoElemento++;
                 }
             }
@@ -169,12 +174,10 @@ int guardaFinais(int *finais, estados *elem)
         return *finais;
     }
     error();
-    exit(1);
 }
 
 void mineraElementos(estados *elem)
 {
-    string subStringTempId;
     string linha;
     int indice = 0;
     entrada.open(arquivo);
@@ -182,7 +185,7 @@ void mineraElementos(estados *elem)
     {
         while (getline(entrada, linha))
         {
-            if (linha.substr(0, 13) == compStringId)
+            if (linha.substr(0, 13) == openState)
             {
                 int posicao1 = linha.find("name=\"") + 6;
                 int posicao2 = linha.find("\">");
@@ -196,12 +199,10 @@ void mineraElementos(estados *elem)
         return;
     }
     error();
-    exit(1);
 }
 
 string clonandoArquivo(string *clone)
 {
-    string subStringTempId;
     string linha;
     int i = 0;
     entrada.open(arquivo);
@@ -216,7 +217,6 @@ string clonandoArquivo(string *clone)
         return *clone;
     }
     error();
-    exit(1);
 }
 
 void complemento(string *clone)
@@ -225,11 +225,11 @@ void complemento(string *clone)
     int trava = 0;
     while (linha < quantLinhasClone)
     {
-        if (clone[linha].substr(0, 13) == compStringId)
+        if (clone[linha].substr(0, 13) == openState)
         {
             if (clone[linha + 3].substr(0, 13) == isInicial && trava == 0)
             {
-                if (clone[linha + 4].substr(0, 12) == fecha)
+                if (clone[linha + 4].substr(0, 12) == closeState)
                 {
                     int x = quantLinhasClone;
                     while (x > linha + 4)
@@ -474,7 +474,7 @@ int printaMenu()
 
 int main()
 {
-    system("color 2");
+    system("color 2"); //Deixa a cor das linhas verde
     int quantLinhas = contaLinhas();
     int quantElementos = contaElementos();
     int posicaoDoInicial = achaInicial();
