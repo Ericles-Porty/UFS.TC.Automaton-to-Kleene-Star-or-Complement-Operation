@@ -40,8 +40,6 @@ int achaInicial();
 int guardaFinais();
 void mineraElementos();
 string clonandoArquivo();
-void complemento();
-void estrela();
 void caseMenu();
 int printaMenu();
 
@@ -219,126 +217,6 @@ string clonandoArquivo(string *clone)
     error();
 }
 
-void complemento(string *clone)
-{
-    int linha = 0;
-    int trava = 0;
-    while (linha < quantLinhasClone)
-    {
-        if (clone[linha].substr(0, 13) == openState)
-        {
-            if (clone[linha + 3].substr(0, 13) == isInicial && trava == 0)
-            {
-                if (clone[linha + 4].substr(0, 12) == closeState)
-                {
-                    int x = quantLinhasClone;
-                    while (x > linha + 4)
-                    {
-                        clone[x] = clone[x - 1];
-                        x--;
-                    }
-                    clone[linha + 4] = "\t\t\t<final/>&#13;";
-                    quantLinhasClone++;
-                }
-                else if (clone[linha + 4].substr(0, 11) == isFinal)
-                {
-                    int x = linha;
-                    while (quantLinhasClone > x)
-                    {
-                        clone[x + 4] = clone[x + 5];
-                        x++;
-                    }
-                    quantLinhasClone--;
-                }
-                trava++;
-            }
-            else
-            {
-                if (clone[linha + 3].substr(0, 11) != isFinal)
-                {
-                    int x = quantLinhasClone;
-                    while (x > linha + 3)
-                    {
-                        clone[x] = clone[x - 1];
-                        x--;
-                    }
-                    clone[linha + 3] = "\t\t\t<final/>&#13;";
-                    quantLinhasClone++;
-                }
-                else
-                {
-                    int x = linha;
-                    while (quantLinhasClone > x)
-                    {
-                        clone[x + 3] = clone[x + 4];
-                        x++;
-                    }
-                    quantLinhasClone--;
-                }
-            }
-        }
-        linha++;
-    }
-    return;
-}
-
-void estrela(string *clone, int posicaoDoInicial, int *elementosFinais, int quantFinais)
-{
-    int linha = 0;
-    while (linha < quantLinhasClone)
-    {
-
-        if (clone[linha].substr(0, 18) == "\t\t\t<initial/>&#13;")
-        {
-            int x = linha;
-            while (quantLinhasClone > x)
-            {
-                clone[x] = clone[x + 1];
-                x++;
-            }
-            quantLinhasClone--;
-        }
-        if (clone[linha].substr(0, 38) == "\t\t<!--The list of transitions.-->&#13;")
-        {
-            int x = quantLinhasClone;
-            while (x > linha + 2)
-            {
-                clone[x] = clone[x - 1];
-                x--;
-            }
-            clone[linha] = "\t\t<state id=\"666\" name=\"AUX\">&#13;\n\t\t\t<x>-100.0</x>&#13;\n\t\t\t<y>100.0</y>&#13;\n\t\t\t<initial/>&#13;\n\t\t\t<final/>&#13;\n\t\t</state>&#13;\n\t\t<!--The list of transitions.-->&#13;";
-            quantLinhasClone += 6;
-        }
-        if (clone[linha].substr(0, 18) == "\t</automaton>&#13;")
-        {
-            int x = quantLinhasClone;
-            quantLinhasClone++;
-            while (x > linha + 3)
-            {
-                clone[x] = clone[x - 1];
-                x--;
-            }
-            clone[linha] = "\t\t<transition>&#13;\n\t\t\t<from>666</from>&#13;\n\t\t\t<to>";
-            clone[linha] += to_string(posicaoDoInicial);
-            clone[linha] += "</to>&#13;\n\t\t\t<read/>&#13;\n\t\t</transition>&#13;\n\t</automaton>&#13;";
-            quantLinhasClone += 6;
-        }
-        if (clone[linha + 1].substr(0, 19) == "\t\t<transition>&#13;")
-        {
-            for (int i = 0; i < quantFinais; i++)
-            {
-                clone[linha] += "\n\t\t<transition>&#13;\n\t\t\t<from>";
-                clone[linha] += to_string(elementosFinais[i]);
-                clone[linha] += "</from>&#13;\n\t\t\t<to>";
-                clone[linha] += to_string(posicaoDoInicial);
-                clone[linha] += "</to>&#13;\n\t\t\t<read/>&#13;\n\t\t</transition>&#13;";
-            }
-            quantLinhasClone += 5 * quantFinais;
-        }
-        linha++;
-    }
-    return;
-}
 
 void caseMenu(string *clone, int quantLinhas, int quantElementos, int quantFinais, int posicaoDoInicial, int *elementosFinais, estados *elem)
 {
@@ -352,49 +230,6 @@ void caseMenu(string *clone, int quantLinhas, int quantElementos, int quantFinai
         op = printaMenu();
         switch (op)
         {
-        case 0:
-            delete[] elem;
-            break;
-        case 1:
-            system("CLS");
-            if (travaC != 0)
-                cout << "Voce ja realizou essa operacao." << endl;
-            if (travaC != 0)
-                break;
-            *clone = clonandoArquivo(clone);
-            complemento(clone);
-            saida.open(arquivoComplemento);
-            if (saida.is_open())
-            {
-                for (int i = 0; i < quantLinhasClone; i++)
-                {
-                    saida << clone[i] << endl;
-                }
-                cout << "Foi criado um automato com a operacao complemento." << endl;
-            }
-            saida.close();
-            travaC++;
-            break;
-        case 2:
-            system("CLS");
-            if (travaE != 0)
-                cout << "Voce ja realizou essa operacao." << endl;
-            if (travaE != 0)
-                break;
-            *clone = clonandoArquivo(clone);
-            estrela(clone, posicaoDoInicial, elementosFinais, quantFinais);
-            saida.open(arquivoEstrela);
-            if (saida.is_open())
-            {
-                for (int i = 0; i < quantLinhasClone; i++)
-                {
-                    saida << clone[i] << endl;
-                }
-                cout << "Foi criado um automato com a operacao estrela." << endl;
-            }
-            saida.close();
-            travaE++;
-            break;
         case 3:
             system("CLS");
             for (int i = 0; i < quantElementos; i++)
@@ -412,38 +247,7 @@ void caseMenu(string *clone, int quantLinhas, int quantElementos, int quantFinai
             cout << "Quantidade de linhas: " << quantLinhas << endl;
             cout << "Quantidade de elementos: " << quantElementos << endl;
             break;
-        case 4:
-            system("CLS");
-            cout << "ATENCAO, VOCE SO PODERA VOLTAR A USAR COMANDOS APOS FECHAR O JFLAP!!!" << endl;
-            system("runA.bat");
-            system("CLS");
-            break;
-        case 5:
-            system("CLS");
-            if (travaC == 0)
-            {
-                cout << "Voce ainda nao modificou o arquivo para complemento" << endl;
-            }
-            else if (travaC != 0)
-            {
-                cout << "ATENCAO, VOCE SO PODERA VOLTAR A USAR COMANDOS APOS FECHAR O JFLAP!!!" << endl;
-                system("runB.bat");
-                system("CLS");
-            }
-            break;
-        case 6:
-            system("CLS");
-            if (travaE == 0)
-            {
-                cout << "Voce ainda nao modificou o arquivo para estrela" << endl;
-            }
-            else if (travaE != 0)
-            {
-                cout << "ATENCAO, VOCE SO PODERA VOLTAR A USAR COMANDOS APOS FECHAR O JFLAP!!!" << endl;
-                system("runC.bat");
-                system("CLS");
-            }
-            break;
+       
         default:
             system("CLS");
             cout << "Voce nao digitou uma opcao valida" << endl;
@@ -457,16 +261,10 @@ int printaMenu()
 {
     int op;
     cout << endl
-         << "---------------------------------" << endl
-         << "Selecione uma operacao: " << endl
-         << "1 - Complemento" << endl
-         << "2 - Estrela " << endl
-         << "3 - Informacoes do automato original " << endl
-         << "4 - Abrir o arquivo jFlap original " << endl
-         << "5 - Abrir o arquivo jFlap complemento " << endl
-         << "6 - Abrir o arquivo jFlap estrela " << endl
-         << "0 - Encerrar o programa " << endl
-         << "---------------------------------" << endl
+        << "---------------------------------" << endl
+        << "Selecione uma operacao: " << endl
+        << "3 - Informacoes do automato original " << endl
+        << "---------------------------------" << endl
          << endl;
     cin >> op;
     return op;
